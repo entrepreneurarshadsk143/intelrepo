@@ -1,0 +1,105 @@
+module atm_tb;
+
+  // Parameters
+  parameter CLK_PERIOD = 10; // Clock period in ns
+
+  // Signals
+  reg clk;
+  reg reset;
+  reg [3:0] pin;
+  reg withdraw;
+  reg deposit;
+  reg balance_disp;
+  reg mini_stmt;
+  reg face_recog;
+
+  wire account_locked;
+  wire [15:0] balance;
+  wire [15:0] new_balance;
+  wire [15:0] recent_transactions;
+
+  // Instantiate the ATM controller module
+  atm atm_inst (
+    .clk(clk),
+    .reset(reset),
+    .pin(pin),
+    .withdraw(withdraw),
+    .deposit(deposit),
+    .balance_disp(balance_disp),
+    .mini_stmt(mini_stmt),
+    .face_recog(face_recog),
+    .account_locked(account_locked),
+    .balance(balance),
+    .new_balance(new_balance),
+    .recent_transactions(recent_transactions)
+  );
+
+  // Clock generation
+  always #((CLK_PERIOD)/2) clk = ~clk;
+
+  // Initialize signals
+  initial begin
+    clk = 0;
+    reset = 1;
+    pin = 4'b0000;
+    withdraw = 0;
+    deposit = 0;
+    balance_disp = 0;
+    mini_stmt = 0;
+    face_recog = 0;
+
+    // Wait for a few clock cycles for the reset to take effect
+    #10 reset = 0;
+
+    // Test case 1: Invalid PIN entry 1
+    #10 pin = 4'b0000;
+    #10 pin = 4'b0000;
+    #10 pin = 4'b0000;
+
+    // Test case 2: Valid PIN entry, Withdraw 5000 INR
+    #10 pin = 4'b1111;
+    #10 withdraw = 1;
+    #10 deposit = 0;
+    #10 balance_disp = 0;
+    #10 mini_stmt = 0;
+    #10 face_recog = 0;
+
+    // Test case 3: Valid PIN entry, Withdraw 15000 INR (Face Recognition Test)
+    #10 pin = 4'b1111;
+    #10 withdraw = 1;
+    #10 deposit = 0;
+    #10 balance_disp = 0;
+    #10 mini_stmt = 0;
+    #10 face_recog = 1;
+
+    // Test case 4: Valid PIN entry, Deposit 2000 INR
+    #10 pin = 4'b1111;
+    #10 withdraw = 0;
+    #10 deposit = 2000;
+    #10 balance_disp = 0;
+    #10 mini_stmt = 0;
+    #10 face_recog = 0;
+
+    // Test case 5: Valid PIN entry, Balance Display
+    #10 pin = 4'b1111;
+    #10 withdraw = 0;
+    #10 deposit = 0;
+    #10 balance_disp = 1;
+    #10 mini_stmt = 0;
+    #10 face_recog = 0;
+
+    // Test case 6: Valid PIN entry, Mini Statement
+    #10 pin = 4'b1111;
+    #10 withdraw = 0;
+    #10 deposit = 0;
+    #10 balance_disp = 0;
+    #10 mini_stmt = 1;
+    #10 face_recog = 0;
+    
+    // Continue with additional test cases as needed
+    // ...
+    
+    // End simulation
+    #10 $finish;
+  end
+endmodule
